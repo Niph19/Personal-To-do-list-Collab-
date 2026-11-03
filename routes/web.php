@@ -18,3 +18,8 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+// Frontend API proxy routes
+Route::prefix('api')->group(function () {
+    require __DIR__.'/frontend.php';
+});
