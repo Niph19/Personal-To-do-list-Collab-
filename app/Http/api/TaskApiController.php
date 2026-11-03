@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Frontend;
+namespace App\Http\api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tugas;
@@ -9,61 +9,115 @@ use Illuminate\Http\Request;
 
 class TaskApiController extends Controller
 {
-    public function index(): JsonResponse
+    /**
+     * Get all tasks for authenticated user
+     */
+    public function index(Request $request): JsonResponse
     {
+        // Filter by authenticated user
+        $tasks = Tugas::where('user_id', $request->user()->id)->get();
+        
         return response()->json([
             'success' => true,
-            'message' => 'Daftar tugas berhasil diambil.',
-            'data' => Tugas::all(),
+            'message' => 'Berhasil mengambil seluruh tugas',
+            'data' => $tasks,
         ]);
     }
 
-    public function show(int $id): JsonResponse
+    /**
+     * Get single task detail
+     */
+    public function show(Request $request, int $id): JsonResponse
     {
-        $task = Tugas::find($id);
+        $task = Tugas::where('user_id', $request->user()->id)->find($id);
+        
         if (!$task) {
-            return response()->json(['success' => false, 'message' => 'Tugas tidak ditemukan.'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Tugas tidak ditemukan'
+            ], 404);
         }
 
-        return response()->json(['success' => true, 'message' => 'Detail tugas berhasil diambil.', 'data' => $task]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Berhasil mengambil seluruh tugas',
+            'data' => $task
+        ]);
     }
 
+    /**
+     * Create new task for authenticated user
+     */
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'deadline' => ['nullable', 'date'],
+            'deadline' => ['required', 'date'],
             'status' => ['sometimes', 'in:todo,done'],
         ]);
-        $task = Tugas::create(['status' => 'todo', ...$data]);
+        
+        // Create task for authenticated user
+        $task = $request->user()->tugas()->create([
+            'title' => $data['title'],
+            'deadline' => $data['deadline'],
+            'status' => $data['status'] ?? 'todo',
+        ]);
 
-        return response()->json(['success' => true, 'message' => 'Tugas berhasil dibuat.', 'data' => $task], 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'Tugas berhasil dibuat',
+            'data' => $task
+        ], 201);
     }
 
+    /**
+     * Update existing task
+     */
     public function update(Request $request, int $id): JsonResponse
     {
-        $task = Tugas::find($id);
+        $task = Tugas::where('user_id', $request->user()->id)->find($id);
+        
         if (!$task) {
-            return response()->json(['success' => false, 'message' => 'Tugas tidak ditemukan.'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Tugas tidak ditemukan'
+            ], 404);
         }
 
-        $task->update($request->validate([
+        $data = $request->validate([
             'title' => ['sometimes', 'string', 'max:255'],
-            'deadline' => ['nullable', 'date'],
+            'deadline' => ['sometimes', 'date'],
             'status' => ['sometimes', 'in:todo,done'],
-        ]));
+        ]);
 
-        return response()->json(['success' => true, 'message' => 'Tugas berhasil diperbarui.', 'data' => $task->fresh()]);
+        $task->update($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tugas berhasil dibuat',
+            'data' => $task->fresh()
+        ]);
     }
 
-    public function destroy(int $id): JsonResponse
+    /**
+     * Delete task
+     */
+    public function destroy(Request $request, int $id): JsonResponse
     {
-        $task = Tugas::find($id);
+        $task = Tugas::where('user_id', $request->user()->id)->find($id);
+        
         if (!$task) {
-            return response()->json(['success' => false, 'message' => 'Tugas tidak ditemukan.'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Tugas tidak dapat ditemukan atau sudah dihapus'
+            ], 404);
         }
 
         $task->delete();
-        return response()->json(['success' => true, 'message' => 'Tugas berhasil dihapus.']);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Tugas berhasil dihapus'
+        ]);
     }
 }

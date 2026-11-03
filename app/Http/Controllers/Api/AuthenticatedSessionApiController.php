@@ -52,11 +52,10 @@ class AuthenticatedSessionApiController extends Controller
     #[OA\Delete(path: '/login', operationId: 'logout', tags: ['Authentication'], summary: 'Logout', security: [['bearerAuth' => []]], responses: [new OA\Response(response: 200, description: 'Logout berhasil'), new OA\Response(response: 401, description: 'Tidak terautentikasi')])]
     public function destroy(Request $request): JsonResponse
     {
-        Auth::guard('web')->logout();
-
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
+        $token = $request->user()?->currentAccessToken();
+        if ($token instanceof \Laravel\Sanctum\PersonalAccessToken) {
+            $token->delete();
+        }
 
         return response()->json([
             'message' => 'User logged out successfully.',

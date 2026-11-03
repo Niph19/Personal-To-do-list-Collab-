@@ -4,12 +4,20 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/login');
 });
+
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
+
+Route::get('/register', function () {
+    return view('auth.register');
+})->name('register');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -19,7 +27,3 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-// Frontend API proxy routes
-Route::prefix('api')->group(function () {
-    require __DIR__.'/frontend.php';
-});

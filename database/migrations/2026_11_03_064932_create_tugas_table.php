@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('tugas', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // User-specific tasks
             $table->string('title');
             $table->dateTime('deadline');
             $table->enum('status', ['todo', 'done'])->default('todo');
