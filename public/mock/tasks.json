@@ -1,0 +1,6 @@
+[
+  { "id": "task-001", "title": "Kirim rancangan halaman dashboard", "deadline": "2026-11-04", "status": "todo" },
+  { "id": "task-002", "title": "Tulis catatan kontrak API", "deadline": "2026-11-05", "status": "todo" },
+  { "id": "task-003", "title": "Siapkan contoh data untuk demo", "deadline": "2026-11-07", "status": "todo" },
+  { "id": "task-004", "title": "Buat struktur Blade awal", "deadline": "2026-11-02", "status": "done" }
+]
