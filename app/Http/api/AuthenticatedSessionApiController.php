@@ -53,6 +53,8 @@ class AuthenticatedSessionApiController extends Controller
 
         $request->session()->regenerateToken();
 
-        // return redirect('/');
+        return response()->json([
+            'message' => 'User logged out successfully.',
+        ]);
     }
 }
